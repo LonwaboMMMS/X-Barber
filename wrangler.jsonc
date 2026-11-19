@@ -1,0 +1,12 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "xbarber-api",
+  "main": "worker/index.js",
+  "compatibility_date": "2026-11-20",
+  "d1_databases": [{
+    "binding": "DB",
+    "database_name": "xbarber-db",
+    "database_id": "623ead64-6e3e-4471-894a-a3c64bf67f51",
+    "migrations_dir": "worker/migrations"
+  }]
+}
