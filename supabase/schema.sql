@@ -73,7 +73,7 @@ create or replace function public.create_booking(
   p_customer_name text,
   p_customer_phone text,
   p_customer_email text,
-  p_starts_at timestamptz,
+  p_starts_at timestamptz
 ) returns jsonb
 language plpgsql
 security definer
