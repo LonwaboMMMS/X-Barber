@@ -32,17 +32,33 @@
     $("barbers").querySelectorAll("button").forEach(b=>b.onclick=()=>{state.barber=barbers.find(x=>x.id===b.dataset.id);state.time="";drawBarbers();summary();drawSlots()});
   };
   const overlaps=(a,z,b)=>new Date(a)<new Date(b.ends_at)&&new Date(z)>new Date(b.starts_at);
-  const drawSlots=()=>{
+  const drawSlots=async()=>{
     const host=$("slots");state.time="";summary();
     if(!state.service||!state.barber){host.innerHTML='<p class="muted">Choose a service and barber first.</p>';return}
-    const busy=read("xbs-demo-bookings").filter(x=>x.date===state.date&&x.barber_id===state.barber.id);
+    host.innerHTML='<p class="muted">Checking availability…</p>';
+    let bookedTimes=null;
+    const apiBase=(window.XBARBER_CONFIG?.apiBaseUrl||"").replace(/\\/$/,"");
+    if(apiBase){
+      try{
+        const response=await fetch(apiBase+"/api/availability?date="+encodeURIComponent(state.date)+"&barber_id="+encodeURIComponent(state.barber.id));
+        if(!response.ok)throw new Error("Availability request failed");
+        const data=await response.json();
+        bookedTimes=new Set(data.booked||[]);
+      }catch(error){
+        host.innerHTML='<p class="muted">Could not load shared availability. Please refresh or try again.</p>';
+        toast("Shared booking calendar is temporarily unavailable.");
+        return;
+      }
+    }
+    const localBusy=read("xbs-demo-bookings").filter(x=>x.date===state.date&&x.barber_id===state.barber.id);
     const now=new Date(),slots=[];
     for(let mins=720;mins<=990;mins+=45){
       const h=String(Math.floor(mins/60)).padStart(2,"0"),m=String(mins%60).padStart(2,"0");
       const start=new Date(state.date+"T"+h+":"+m+":00"),end=new Date(start.getTime()+45*60000);
       if(start<=now)continue;
-      const a=start.toISOString(),z=end.toISOString();
-      slots.push({time:h+":"+m,busy:busy.some(x=>overlaps(a,z,x))});
+      const a=start.toISOString(),z=end.toISOString(),time=h+":"+m;
+      const busy=bookedTimes?bookedTimes.has(time):localBusy.some(x=>overlaps(a,z,x));
+      slots.push({time,busy});
     }
     host.innerHTML=slots.length?slots.map(x=>'<button class="slot" data-time="'+x.time+'" '+(x.busy?'disabled':'')+'>'+new Date("2000-01-01T"+x.time+":00").toLocaleTimeString("en-ZA",{hour:"numeric",minute:"2-digit",hour12:true})+'</button>').join(""):'<p class="muted">No slots remain for this date. Try another day.</p>';
     host.querySelectorAll("button:not(:disabled)").forEach(b=>b.onclick=()=>{state.time=b.dataset.time;host.querySelectorAll(".slot").forEach(x=>x.classList.toggle("selected",x===b));summary()});
