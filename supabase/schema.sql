@@ -32,6 +32,7 @@ create table if not exists public.bookings (
   total_cents integer not null check (total_cents >= 0),
   status text not null default 'pending_payment' check (status in ('pending_payment','confirmed','cancelled','expired')),
   payment_reference text,
+  gallery_consent boolean not null default false,
   created_at timestamptz not null default now(),
   constraint booking_time_valid check (ends_at > starts_at)
 );
@@ -42,6 +43,27 @@ create index if not exists bookings_status_idx on public.bookings(status);
 alter table public.services enable row level security;
 alter table public.barbers enable row level security;
 alter table public.bookings enable row level security;
+alter table public.bookings add column if not exists gallery_consent boolean not null default false;
+
+-- Public gallery: visitors can read published entries only.
+create table if not exists public.gallery_photos (
+ id uuid primary key default gen_random_uuid(),
+ image_url text not null,
+ caption text not null default '',
+ alt_text text not null default 'Fresh haircut at X Barbershop',
+ is_published boolean not null default false,
+ sort_order integer not null default 0,
+ created_at timestamptz not null default now()
+);
+alter table public.gallery_photos enable row level security;
+drop policy if exists "Anyone can view published gallery photos" on public.gallery_photos;
+create policy "Anyone can view published gallery photos" on public.gallery_photos for select using (is_published = true);
+
+-- Public image bucket. Uploads and publishing stay admin-controlled in Supabase.
+insert into storage.buckets (id,name,public) values ('barber-gallery','barber-gallery',true)
+on conflict (id) do update set public = true;
+drop policy if exists "Public can view barber gallery images" on storage.objects;
+create policy "Public can view barber gallery images" on storage.objects for select using (bucket_id = 'barber-gallery');
 
 drop policy if exists "Anyone can view active services" on public.services;
 create policy "Anyone can view active services" on public.services for select using (active = true);
@@ -72,7 +94,8 @@ create or replace function public.create_booking(
   p_customer_name text,
   p_customer_phone text,
   p_customer_email text,
-  p_starts_at timestamptz
+  p_starts_at timestamptz,
+  p_gallery_consent boolean default false
 ) returns jsonb
 language plpgsql
 security definer
@@ -108,16 +131,17 @@ begin
     raise exception 'That time has just been booked. Please choose another slot.';
   end if;
 
-  insert into public.bookings(service_id, barber_id, customer_name, customer_phone, customer_email, starts_at, ends_at, total_cents)
-  values (p_service_id, p_barber_id, trim(p_customer_name), trim(p_customer_phone), lower(trim(p_customer_email)), p_starts_at, v_ends_at, v_service.price_cents)
+  insert into public.bookings(service_id, barber_id, customer_name, customer_phone, customer_email, starts_at, ends_at, total_cents, gallery_consent)
+  values (p_service_id, p_barber_id, trim(p_customer_name), trim(p_customer_phone), lower(trim(p_customer_email)), p_starts_at, v_ends_at, v_service.price_cents, coalesce(p_gallery_consent, false))
   returning id into v_booking_id;
 
   return jsonb_build_object('booking_id', v_booking_id, 'status', 'pending_payment');
 end;
 $$;
 
-revoke all on function public.create_booking(uuid,uuid,text,text,text,timestamptz) from public;
-grant execute on function public.create_booking(uuid,uuid,text,text,text,timestamptz) to anon, authenticated;
+drop function if exists public.create_booking(uuid,uuid,text,text,text,timestamptz);
+revoke all on function public.create_booking(uuid,uuid,text,text,text,timestamptz,boolean) from public;
+grant execute on function public.create_booking(uuid,uuid,text,text,text,timestamptz,boolean) to anon, authenticated;
 
 -- Initial editable examples. Change these prices, names and durations in Supabase before launch.
 insert into public.services(name, description, price_cents, duration_minutes, sort_order)
