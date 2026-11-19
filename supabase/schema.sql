@@ -49,6 +49,23 @@ drop policy if exists "Anyone can view active barbers" on public.barbers;
 create policy "Anyone can view active barbers" on public.barbers for select using (active = true);
 -- Customers cannot read or directly insert bookings. Booking creation is handled by the RPC below.
 
+-- Expose only occupied appointment intervals, never customer details.
+create or replace function public.get_busy_times(p_barber_id uuid, p_date date)
+returns table(starts_at timestamptz, ends_at timestamptz)
+language sql
+security definer
+set search_path = public
+as $
+  select b.starts_at, b.ends_at
+  from public.bookings b
+  where b.barber_id = p_barber_id
+    and b.status in ('pending_payment','confirmed')
+    and b.starts_at < (p_date + interval '1 day')
+    and b.ends_at > p_date::timestamptz;
+$;
+revoke all on function public.get_busy_times(uuid,date) from public;
+grant execute on function public.get_busy_times(uuid,date) to anon, authenticated;
+
 create or replace function public.create_booking(
   p_service_id uuid,
   p_barber_id uuid,
@@ -103,14 +120,18 @@ revoke all on function public.create_booking(uuid,uuid,text,text,text,timestampt
 grant execute on function public.create_booking(uuid,uuid,text,text,text,timestamptz) to anon, authenticated;
 
 -- Initial editable examples. Change these prices, names and durations in Supabase before launch.
-insert into public.services(name, description, price_cents, duration_minutes, sort_order) values
-('Standard Haircut','A clean, classic cut.',15000,30,1),
-('Skin Fade','A detailed fade, finished sharp.',20000,45,2),
-('Haircut & Beard','A fresh cut with beard shaping.',25000,60,3),
-('Kids Haircut','A neat cut for the young ones.',12000,30,4)
-on conflict do nothing;
+insert into public.services(name, description, price_cents, duration_minutes, sort_order)
+select v.name,v.description,v.price_cents,v.duration_minutes,v.sort_order
+from (values
+  ('Standard Haircut','A clean, classic cut.',15000,30,1),
+  ('Skin Fade','A detailed fade, finished sharp.',20000,45,2),
+  ('Haircut & Beard','A fresh cut with beard shaping.',25000,60,3),
+  ('Kids Haircut','A neat cut for the young ones.',12000,30,4)
+) as v(name,description,price_cents,duration_minutes,sort_order)
+where not exists (select 1 from public.services);
 
-insert into public.barbers(name, bio, sort_order) values
-('Barber 1','Your barber. Your style.',1),
-('Barber 2','Your barber. Your style.',2)
-on conflict do nothing;
+insert into public.barbers(name, bio, sort_order)
+select v.name,v.bio,v.sort_order
+from (values ('Barber 1','Your barber. Your style.',1),('Barber 2','Your barber. Your style.',2))
+as v(name,bio,sort_order)
+where not exists (select 1 from public.barbers);
