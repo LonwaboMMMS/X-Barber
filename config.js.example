@@ -1,0 +1,6 @@
+// Copy this file to config.js and add your Supabase project details.
+// The anon/publishable key is intended for browser use. Never put a service-role key here.
+window.XBARBER_CONFIG = {
+  supabaseUrl: "https://YOUR-PROJECT.supabase.co",
+  supabaseAnonKey: "YOUR_SUPABASE_ANON_OR_PUBLISHABLE_KEY"
+};
