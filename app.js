@@ -39,8 +39,7 @@
   const loadBookings = async () => {
     state.bookings=[];
     if(db && state.barber && state.date){
-      const start=new Date(state.date+"T00:00:00").toISOString(),end=new Date(state.date+"T23:59:59").toISOString();
-      const {data,error}=await db.from("bookings").select("starts_at,ends_at,status").eq("barber_id",state.barber.id).in("status",["pending_payment","confirmed"]).gte("starts_at",start).lte("starts_at",end);
+      const {data,error}=await db.rpc("get_busy_times",{p_barber_id:state.barber.id,p_date:state.date});
       if(error){notify("Could not load availability. Please try again.");return;}
       state.bookings=data||[];
     } else if(!db) {
