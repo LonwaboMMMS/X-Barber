@@ -39,7 +39,7 @@ a:focus:not(:focus-visible), button:focus:not(:focus-visible), [role="button"]:f
   nav.bottom-nav .bottom-nav-link.active,
   nav.bottom-nav .bottom-nav-link:hover,
   nav.bottom-nav .bottom-nav-link:focus{
-    flex:0 0 20%!important;width:20%!important;min-width:0!important;
+    flex:none!important;width:100%!important;justify-self:stretch!important;min-width:0!important;
     height:48px!important;gap:4px!important;padding:0!important;
     font-size:8px!important;line-height:1!important;letter-spacing:.45px!important;
     transform:none!important;scale:1!important;
