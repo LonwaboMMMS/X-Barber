@@ -1,7 +1,0 @@
-// Browser-safe public configuration only. Never put secret/payment API keys here.
-window.XBARBER_CONFIG = {
-  supabaseUrl: "https://YOUR-PROJECT.supabase.co",
-  supabaseAnonKey: "YOUR_SUPABASE_ANON_OR_PUBLISHABLE_KEY",
-  // Secure backend/Edge Function returns { checkoutUrl } after creating a gateway checkout session.
-  checkoutEndpoint: ""
-};
