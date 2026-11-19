@@ -120,14 +120,12 @@ $$;
 revoke all on function public.create_booking(uuid,uuid,text,text,text,timestamptz) from public;
 grant execute on function public.create_booking(uuid,uuid,text,text,text,timestamptz) to anon, authenticated;
 
--- Initial editable examples. Change these prices, names and durations in Supabase before launch.
+-- Initial services. These are inserted only when the services table is empty.
 insert into public.services(name, description, price_cents, duration_minutes, sort_order)
 select v.name,v.description,v.price_cents,v.duration_minutes,v.sort_order
 from (values
-  ('Standard Haircut','A clean, classic cut.',15000,30,1),
-  ('Skin Fade','A detailed fade, finished sharp.',20000,45,2),
-  ('Haircut & Beard','A fresh cut with beard shaping.',25000,60,3),
-  ('Kids Haircut','A neat cut for the young ones.',12000,30,4)
+  ('Fade','A clean, sharp fade.',5000,45,1),
+  ('Fade with Dye','A fresh fade finished with hair dye.',7000,45,2)
 ) as v(name,description,price_cents,duration_minutes,sort_order)
 where not exists (select 1 from public.services);
 
