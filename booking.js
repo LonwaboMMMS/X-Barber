@@ -1,1 +1,63 @@
-(()=>{const cfg=window.XBARBER_CONFIG||{},db=cfg.supabaseUrl&&cfg.supabaseAnonKey&&!cfg.supabaseUrl.includes("YOUR-PROJECT")&&window.supabase?window.supabase.createClient(cfg.supabaseUrl,cfg.supabaseAnonKey):null,$=id=>document.getElementById(id),money=n=>new Intl.NumberFormat("en-ZA",{style:"currency",currency:"ZAR"}).format(n/100),fmt=d=>d.toLocaleDateString("en-ZA",{weekday:"short",day:"numeric",month:"short",year:"numeric"}),dateval=d=>[d.getFullYear(),String(d.getMonth()+1).padStart(2,"0"),String(d.getDate()).padStart(2,"0")].join("-"),demoS=[["fade","Fade","A clean, sharp fade.",5000],["fade-dye","Fade with Dye","A fresh fade finished with hair dye.",7000]].map(x=>({id:x[0],name:x[1],description:x[2],price_cents:x[3],duration_minutes:45})),demoB=[{id:"barber1",name:"Barber 1",bio:"Your barber. Your style."},{id:"barber2",name:"Barber 2",bio:"Your barber. Your style."}],s={services:[],barbers:[],service:null,barber:null,date:"",time:"",busy:[]},cart=()=>JSON.parse(localStorage.getItem("xbs-cart")||"[]"),toast=m=>{const e=$("toast");e.textContent=m;e.classList.add("show");setTimeout(()=>e.classList.remove("show"),3000)};function summary(){$("sum-service").textContent=s.service?.name||"Not selected";$("sum-barber").textContent=s.barber?.name||"Not selected";$("sum-date").textContent=s.date?fmt(new Date(s.date+"T12:00:00")):"Not selected";$("sum-time").textContent=s.time||"Not selected";$("sum-price").textContent=s.service?money(s.service.price_cents):"R0.00";$("add-to-cart").disabled=!(s.service&&s.barber&&s.date&&s.time)}function drawS(){$("services").innerHTML=s.services.map(x=>'<button class="choice '+(s.service?.id===x.id?'selected':'')+'" data-id="'+x.id+'"><strong>'+x.name+'<span class="price">'+money(x.price_cents)+'</span></strong><span>'+x.description+'</span></button>').join("");$("services").querySelectorAll("button").forEach(b=>b.onclick=()=>{s.service=s.services.find(x=>x.id===b.dataset.id);drawS();summary();slots()})}function drawB(){$("barbers").innerHTML=s.barbers.map(x=>'<button class="barber-card '+(s.barber?.id===x.id?'selected':'')+'" data-id="'+x.id+'"><span class="avatar">'+x.name[0]+'</span><span><strong>'+x.name+'</strong><span>'+x.bio+'</span></span></button>').join("");$("barbers").querySelectorAll("button").forEach(b=>b.onclick=()=>{s.barber=s.barbers.find(x=>x.id===b.dataset.id);drawB();summary();slots()})}async function slots(){const el=$("slots");s.time="";summary();if(!s.service||!s.barber){el.innerHTML='<p class="muted">Choose a service and barber first.</p>';return}el.innerHTML='<p class="muted">Checking availability…</p>';s.busy=[];if(db){const {data,error}=await db.rpc("get_busy_times",{p_barber_id:s.barber.id,p_date:s.date});if(error){el.textContent="Availability could not be loaded.";return}s.busy=data||[]}else{s.busy=JSON.parse(localStorage.getItem("xbs-demo-bookings")||"[]").filter(x=>x.date===s.date&&x.barber_id===s.barber.id)}const now=new Date(),slots=[];for(let mins=720;mins+45<=1035;mins+=45){const h=String(Math.floor(mins/60)).padStart(2,"0"),m=String(mins%60).padStart(2,"0"),start=new Date(s.date+"T"+h+":"+m+":00"),end=new Date(start.getTime()+2700000);if(start<=now)continue;const a=start.toISOString(),z=end.toISOString(),busy=s.busy.some(b=>new Date(a)<new Date(b.ends_at)&&new Date(z)>new Date(b.starts_at));slots.push({time:h+":"+m,busy})}el.innerHTML=slots.length?slots.map(x=>'<button class="slot" data-time="'+x.time+'" '+(x.busy?'disabled':'')+'>'+new Date("2000-01-01T"+x.time+":00").toLocaleTimeString("en-ZA",{hour:"numeric",minute:"2-digit",hour12:true})+'</button>').join(""):'<p class="muted">No slots remain for this date.</p>';el.querySelectorAll("button:not(:disabled)").forEach(b=>b.onclick=()=>{s.time=b.dataset.time;el.querySelectorAll(".slot").forEach(x=>x.classList.toggle("selected",x===b));summary()})}async function init(){if(db){const [a,b]=await Promise.all([db.from("services").select("*").eq("active",true).order("sort_order"),db.from("barbers").select("*").eq("active",true).order("sort_order")]);if(a.error||b.error){toast("Could not load booking options.");return}s.services=a.data;s.barbers=b.data}else{s.services=demoS;s.barbers=demoB}$("cart-count").textContent=cart().length;drawS();drawB();slots()}const today=new Date(),tomorrow=new Date(today.getFullYear(),today.getMonth(),today.getDate()+1);$("booking-date").min=dateval(today);$("booking-date").value=dateval(tomorrow);s.date=dateval(tomorrow);$("booking-date").onchange=e=>{s.date=e.target.value;slots()};$("add-to-cart").onclick=()=>{if(!s.service||!s.barber||!s.time)return;const c=cart();c.push({service_id:s.service.id,service_name:s.service.name,price_cents:s.service.price_cents,barber_id:s.barber.id,barber_name:s.barber.name,date:s.date,time:s.time,duration_minutes:45});localStorage.setItem("xbs-cart",JSON.stringify(c));location.href="cart.html"};init()})();
+(()=> {
+  const $ = id => document.getElementById(id);
+  const money = cents => new Intl.NumberFormat("en-ZA",{style:"currency",currency:"ZAR"}).format(cents/100);
+  const fmt = value => new Date(value+"T12:00:00").toLocaleDateString("en-ZA",{weekday:"short",day:"numeric",month:"short",year:"numeric"});
+  const dateval = d => [d.getFullYear(),String(d.getMonth()+1).padStart(2,"0"),String(d.getDate()).padStart(2,"0")].join("-");
+  const services = [
+    {id:"fade",name:"Fade",description:"A clean, sharp fade.",price_cents:5000,duration_minutes:45},
+    {id:"fade-dye",name:"Fade with Dye",description:"A fresh fade finished with hair dye.",price_cents:7000,duration_minutes:45}
+  ];
+  const barbers = [
+    {id:"barber1",name:"Barber 1",bio:"Your barber. Your style."},
+    {id:"barber2",name:"Barber 2",bio:"Your barber. Your style."}
+  ];
+  const state={service:null,barber:null,date:"",time:""};
+  const read=(key)=>{try{return JSON.parse(localStorage.getItem(key)||"[]")}catch(_){return []}};
+  const toast=message=>{const el=$("toast");el.textContent=message;el.classList.add("show");setTimeout(()=>el.classList.remove("show"),3000)};
+  const cart=()=>read("xbs-cart");
+  const summary=()=>{
+    $("sum-service").textContent=state.service?.name||"Not selected";
+    $("sum-barber").textContent=state.barber?.name||"Not selected";
+    $("sum-date").textContent=state.date?fmt(state.date):"Not selected";
+    $("sum-time").textContent=state.time||"Not selected";
+    $("sum-price").textContent=state.service?money(state.service.price_cents):"R0.00";
+    $("add-to-cart").disabled=!(state.service&&state.barber&&state.date&&state.time);
+  };
+  const drawServices=()=>{
+    $("services").innerHTML=services.map(x=>'<button class="choice '+(state.service?.id===x.id?'selected':'')+'" data-id="'+x.id+'"><strong>'+x.name+'<span class="price">'+money(x.price_cents)+'</span></strong><span>'+x.description+' · 45 min</span></button>').join("");
+    $("services").querySelectorAll("button").forEach(b=>b.onclick=()=>{state.service=services.find(x=>x.id===b.dataset.id);state.time="";drawServices();summary();drawSlots()});
+  };
+  const drawBarbers=()=>{
+    $("barbers").innerHTML=barbers.map(x=>'<button class="barber-card '+(state.barber?.id===x.id?'selected':'')+'" data-id="'+x.id+'"><span class="avatar">'+x.name[0]+'</span><span><strong>'+x.name+'</strong><span>'+x.bio+'</span></span></button>').join("");
+    $("barbers").querySelectorAll("button").forEach(b=>b.onclick=()=>{state.barber=barbers.find(x=>x.id===b.dataset.id);state.time="";drawBarbers();summary();drawSlots()});
+  };
+  const overlaps=(a,z,b)=>new Date(a)<new Date(b.ends_at)&&new Date(z)>new Date(b.starts_at);
+  const drawSlots=()=>{
+    const host=$("slots");state.time="";summary();
+    if(!state.service||!state.barber){host.innerHTML='<p class="muted">Choose a service and barber first.</p>';return}
+    const busy=read("xbs-demo-bookings").filter(x=>x.date===state.date&&x.barber_id===state.barber.id);
+    const now=new Date(),slots=[];
+    for(let mins=720;mins+45<=990;mins+=45){
+      const h=String(Math.floor(mins/60)).padStart(2,"0"),m=String(mins%60).padStart(2,"0");
+      const start=new Date(state.date+"T"+h+":"+m+":00"),end=new Date(start.getTime()+45*60000);
+      if(start<=now)continue;
+      const a=start.toISOString(),z=end.toISOString();
+      slots.push({time:h+":"+m,busy:busy.some(x=>overlaps(a,z,x))});
+    }
+    host.innerHTML=slots.length?slots.map(x=>'<button class="slot" data-time="'+x.time+'" '+(x.busy?'disabled':'')+'>'+new Date("2000-01-01T"+x.time+":00").toLocaleTimeString("en-ZA",{hour:"numeric",minute:"2-digit",hour12:true})+'</button>').join(""):'<p class="muted">No slots remain for this date. Try another day.</p>';
+    host.querySelectorAll("button:not(:disabled)").forEach(b=>b.onclick=()=>{state.time=b.dataset.time;host.querySelectorAll(".slot").forEach(x=>x.classList.toggle("selected",x===b));summary()});
+  };
+  const today=new Date(),tomorrow=new Date(today.getFullYear(),today.getMonth(),today.getDate()+1);
+  const dateInput=$("booking-date");dateInput.min=dateval(today);dateInput.value=dateval(tomorrow);state.date=dateval(tomorrow);
+  dateInput.onchange=e=>{state.date=e.target.value;drawSlots()};
+  $("add-to-cart").onclick=()=>{
+    if(!state.service||!state.barber||!state.time)return;
+    const items=cart();
+    items.push({service_id:state.service.id,service_name:state.service.name,price_cents:state.service.price_cents,barber_id:state.barber.id,barber_name:state.barber.name,date:state.date,time:state.time,duration_minutes:45});
+    localStorage.setItem("xbs-cart",JSON.stringify(items));
+    location.href="cart.html";
+  };
+  $("cart-count").textContent=cart().length;
+  document.querySelectorAll(".bottom-cart-count").forEach(x=>x.textContent=cart().length);
+  drawServices();drawBarbers();drawSlots();summary();
+})();
