@@ -32,3 +32,26 @@ html, body, a, button, input, select, textarea, [role="button"], .choice, .barbe
   -webkit-tap-highlight-color: transparent;
 }
 a:focus:not(:focus-visible), button:focus:not(:focus-visible), [role="button"]:focus:not(:focus-visible) { outline: none; }
+
+/* Keep every mobile navigation item identical in size, including the selected page. */
+@media(max-width:767px){
+  nav.bottom-nav .bottom-nav-link,
+  nav.bottom-nav .bottom-nav-link.active,
+  nav.bottom-nav .bottom-nav-link:hover,
+  nav.bottom-nav .bottom-nav-link:focus{
+    flex:0 0 20%!important;width:20%!important;min-width:0!important;
+    height:48px!important;gap:4px!important;padding:0!important;
+    font-size:8px!important;line-height:1!important;letter-spacing:.45px!important;
+    transform:none!important;scale:1!important;
+  }
+  nav.bottom-nav .bottom-nav-icon{
+    display:grid!important;place-items:center!important;
+    width:24px!important;height:24px!important;flex:0 0 24px!important;
+    font-size:20px!important;line-height:24px!important;
+    transform:none!important;scale:1!important;
+  }
+  nav.bottom-nav .bottom-nav-link>span:not(.bottom-nav-icon){
+    display:block!important;font-size:8px!important;line-height:10px!important;
+    white-space:nowrap!important;transform:none!important;
+  }
+}
