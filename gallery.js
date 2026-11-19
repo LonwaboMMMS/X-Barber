@@ -1,1 +1,15 @@
-(()=>{const grid=document.getElementById("gallery-grid"),cfg=window.XBARBER_CONFIG||{},esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));const empty=(title,msg)=>grid.innerHTML='<div class="gallery-empty"><h2>'+title+'</h2><p>'+msg+'</p><a class="primary-btn" href="booking.html">BOOK YOUR CUT <span>↗</span></a></div>';if(!cfg.supabaseUrl||!cfg.supabaseAnonKey||!window.supabase){empty("FRESH CUTS COMING SOON","Our haircut gallery is being prepared. Check back soon.");return}const db=window.supabase.createClient(cfg.supabaseUrl,cfg.supabaseAnonKey);db.from("gallery_photos").select("image_url,caption,alt_text").eq("is_published",true).order("sort_order",{ascending:true}).order("created_at",{ascending:false}).then(({data,error})=>{if(error||!data?.length){empty("FRESH CUTS COMING SOON","Our best looks will appear here. Check back soon.");return}grid.innerHTML=data.map(p=>'<figure class="gallery-card"><img src="'+esc(p.image_url)+'" alt="'+esc(p.alt_text||p.caption||"Haircut at X Barbershop")+'" loading="lazy"><figcaption>'+esc(p.caption||"X Barbershop")+'</figcaption></figure>').join("")})})();
+// Add each new haircut photo to this list after uploading it to the Images folder.
+// Use the exact filename, including capitalisation and file extension.
+(()=>{
+  const grid=document.getElementById("gallery-grid");
+  const photos=[
+    // Example:
+    // {src:"Images/skin-fade-01.jpg",caption:"Skin fade",alt:"Fresh skin fade at X Barbershop"}
+  ];
+  const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+  if(!photos.length){
+    grid.innerHTML='<div class="gallery-empty"><h2>FRESH CUTS COMING SOON</h2><p>Our best looks will appear here. Check back soon.</p><a class="primary-btn" href="booking.html">BOOK YOUR CUT <span>↗</span></a></div>';
+    return;
+  }
+  grid.innerHTML=photos.map(p=>'<figure class="gallery-card"><img src="'+esc(p.src)+'" alt="'+esc(p.alt||p.caption||"Haircut at X Barbershop")+'" loading="lazy"><figcaption>'+esc(p.caption||"X Barbershop")+'</figcaption></figure>').join("");
+})();
