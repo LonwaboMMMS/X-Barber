@@ -1,6 +1,6 @@
 # X Barbershop
 
-A static, GitHub-hosted haircut booking website. The site uses repository files for its code, services, prices, barbers and gallery images. It does not use Supabase or another database.
+A static, GitHub-hosted haircut booking website. The site currently uses repository files for its code, services, prices, barbers and gallery images. A shared online booking database has not been connected yet.
 
 ## Haircut menu
 - Fade — R50
@@ -19,7 +19,7 @@ Prices and service names are defined directly in `booking.js`.
 ## Booking storage limitation
 The site is hosted as a static GitHub Pages website. It saves the cart and demo booked slots in the visitor's browser using localStorage. This means bookings are not shared between customers, devices or barbers, and it cannot reliably prevent two customers from choosing the same slot. GitHub Pages does not let public website visitors safely write booking records directly into repository files.
 
-For a shared live booking calendar, an authenticated server-side workflow or booking service is required. No GitHub access token or repository write credential should ever be placed in browser JavaScript.
+The planned shared booking system will use a server-side API and database. Booking validation and double-booking protection must happen on the server, not only in browser JavaScript. Never place private API credentials or repository write tokens in public website files.
 
 ## Barbers and appointment times
 Barber names are currently defined in `booking.js` as Barber 1 and Barber 2. Update those labels in that file when the names are confirmed. Appointments begin at 12:00 PM, with 45-minute slots through 4:30 PM. Each appointment reserves 45 minutes.
