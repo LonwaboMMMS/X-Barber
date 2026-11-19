@@ -94,7 +94,7 @@ begin
   select * into v_barber from public.barbers where id = p_barber_id and active = true;
   if not found then raise exception 'This barber is no longer available.'; end if;
 
-  v_ends_at := p_starts_at + make_interval(mins => v_service.duration_minutes);
+  v_ends_at := p_starts_at + interval '45 minutes';
   if p_starts_at <= now() then raise exception 'Please choose a future time.'; end if;
 
   -- Serialise booking attempts for this barber to prevent simultaneous overlapping appointments.
