@@ -22,11 +22,11 @@
 @media screen and (min-width: 768px) { nav.bottom-nav { display: none !important; } }
 </style></head><body><header class="topbar"><a class="brand" href="index.html"><span class="brand-mark">X</span><span>X BARBERSHOP</span></a><nav class="nav-actions"><a class="cart-link" href="cart.html">CART <span id="cart-count">0</span></a></nav></header><main class="page-wrap"><div class="page-intro"><p class="eyebrow">STEP 02 — REVIEW</p><h1>YOUR <em>CART.</em></h1><p>Review your appointment before checkout.</p></div><div class="cart-layout"><section id="cart-items" class="cart-items"></section><aside class="summary"><p class="eyebrow">ORDER SUMMARY</p><h3>YOUR TOTAL</h3><div class="summary-line"><span>Appointments</span><strong id="cart-qty">0</strong></div><div class="summary-total"><span>TOTAL</span><strong id="cart-total">R0.00</strong></div><a class="primary-btn checkout-link" href="checkout.html">PROCEED TO CHECKOUT <span>↗</span></a><p class="summary-foot">Payment is required to confirm your appointment.</p></aside></div></main><footer><a class="brand" href="index.html"><span class="brand-mark">X</span><span>X BARBERSHOP</span></a><span>© 2026 X BARBERSHOP</span><span>DEVELOPED BY <a href="https://reverbdailymedia.co.za" target="_blank" rel="noopener">REVERB DAILY MEDIA</a>.</span></footer>
 <nav class="bottom-nav" aria-label="Main navigation">
-  <a class="bottom-nav-link" href="index.html"><span class="bottom-nav-icon">⌂</span><span>HOME</span></a>
-  <a class="bottom-nav-link" href="booking.html"><span class="bottom-nav-icon">＋</span><span>BOOKING</span></a>
-  <a class="bottom-nav-link active" href="cart.html"><span class="bottom-nav-icon">▢</span><span>CART <b class="bottom-cart-count">0</b></span></a>
-  <a class="bottom-nav-link" href="checkout.html"><span class="bottom-nav-icon">↗</span><span>CHECKOUT</span></a>
-</nav><script defer src="cart.js"></script><script defer src="pwa.js"></script><script>
+<a class="bottom-nav-link " href="index.html"><span class="bottom-nav-icon">⌂</span><span>HOME</span></a>
+<a class="bottom-nav-link " href="booking.html"><span class="bottom-nav-icon">＋</span><span>BOOK</span></a>
+<a class="bottom-nav-link " href="gallery.html"><span class="bottom-nav-icon">▧</span><span>GALLERY</span></a>
+<a class="bottom-nav-link active" href="cart.html"><span class="bottom-nav-icon">▢</span><span>CART <b class="bottom-cart-count">0</b></span></a>
+<a class="bottom-nav-link " href="checkout.html"><span class="bottom-nav-icon">↗</span><span>PAY</span></a></nav><script defer src="cart.js"></script><script defer src="pwa.js"></script><script>
 (()=>{const count=()=>{try{return JSON.parse(localStorage.getItem("xbs-cart")||"[]").length}catch(e){return 0}};document.querySelectorAll(".bottom-cart-count").forEach(el=>el.textContent=count())})();
 </script>
 </body></html>
