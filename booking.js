@@ -37,7 +37,7 @@
     if(!state.service||!state.barber){host.innerHTML='<p class="muted">Choose a service and barber first.</p>';return}
     const busy=read("xbs-demo-bookings").filter(x=>x.date===state.date&&x.barber_id===state.barber.id);
     const now=new Date(),slots=[];
-    for(let mins=720;mins+45<=990;mins+=45){
+    for(let mins=720;mins<=990;mins+=45){
       const h=String(Math.floor(mins/60)).padStart(2,"0"),m=String(mins%60).padStart(2,"0");
       const start=new Date(state.date+"T"+h+":"+m+":00"),end=new Date(start.getTime()+45*60000);
       if(start<=now)continue;
