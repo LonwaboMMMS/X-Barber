@@ -1,4 +1,4 @@
-# X Barber Shop
+# X Barbershop
 
 Separate home, booking, cart and checkout pages for a two-barber haircut booking system.
 
