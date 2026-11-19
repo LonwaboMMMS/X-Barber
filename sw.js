@@ -1,4 +1,4 @@
-const CACHE_NAME="xbarber-shell-v2";
+const CACHE_NAME="xbarber-shell-v3";
 const SHELL=["./","./index.html","./booking.html","./cart.html","./checkout.html","./styles.css","./booking.js","./cart.js","./checkout.js","./config.js.example","./manifest.webmanifest","./pwa.js","./icons/icon-192.svg","./icons/icon-512.svg"];
 self.addEventListener("install",event=>{event.waitUntil(caches.open(CACHE_NAME).then(cache=>cache.addAll(SHELL)).then(()=>self.skipWaiting()))});
 self.addEventListener("activate",event=>{event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(key=>key!==CACHE_NAME).map(key=>caches.delete(key)))).then(()=>self.clients.claim()))});
