@@ -1,33 +1,34 @@
 # X Barbershop
 
-Separate home, booking, cart and checkout pages for a two-barber haircut booking system.
+A static, GitHub-hosted haircut booking website. The site uses repository files for its code, services, prices, barbers and gallery images. It does not use Supabase or another database.
 
-## Appointment schedule
-- First appointment: 12:00 PM.
-- New appointment every 45 minutes: 12:00, 12:45, 1:30, 2:15, 3:00, 3:45, 4:30 PM.
-- Each booking reserves 45 minutes. Last slot ends at 5:15 PM.
-- Each barber has a separate availability calendar.
+## Haircut menu
+- Fade — R50
+- Fade with Dye — R70
+- Both services take 45 minutes.
+
+Prices and service names are defined directly in `booking.js`.
 
 ## Pages
-- index.html — home
-- booking.html — service, barber, date and time selection
-- cart.html — review and remove bookings
-- checkout.html — customer details and payment handoff
-- gallery.html — public haircut photo gallery
+- `index.html` — home
+- `booking.html` — service, barber, date and time selection
+- `cart.html` — review and remove appointments
+- `checkout.html` — customer details and payment handoff
+- `gallery.html` — public haircut photo gallery
 
-## Demo
-Without Supabase configuration, sample services/barbers are shown and the cart is stored in browser local storage. Demo bookings do not sync across customers and are not suitable for real bookings.
+## Booking storage limitation
+The site is hosted as a static GitHub Pages website. It saves the cart and demo booked slots in the visitor's browser using localStorage. This means bookings are not shared between customers, devices or barbers, and it cannot reliably prevent two customers from choosing the same slot. GitHub Pages does not let public website visitors safely write booking records directly into repository files.
 
-## Supabase
-Create a project, run supabase/schema.sql in SQL Editor, then copy config.js.example to config.js and add the project URL and anon/publishable key. Never expose the service-role key. Edit service prices and barber names in Supabase.
+For a shared live booking calendar, an authenticated server-side workflow or booking service is required. No GitHub access token or repository write credential should ever be placed in browser JavaScript.
+
+## Barbers and appointment times
+Barber names are currently defined in `booking.js` as Barber 1 and Barber 2. Update those labels in that file when the names are confirmed. Appointments begin at 12:00 PM, with 45-minute slots through 4:30 PM. Each appointment reserves 45 minutes.
 
 ## Customer photo gallery
-The gallery is static and uses photos stored in the repository's `Images/` folder. Upload each haircut photo to that folder, then add its path, caption and alt text to the `photos` array in `gallery.js`. Use the exact filename and capitalisation. Commit and push the changes; GitHub Pages will publish them, and visitors can refresh the gallery to see the latest photos. Only add photos you have permission to publish. No separate gallery database or image-hosting service is required.
+The gallery is static and uses photos stored in the repository's `Images/` folder. Upload each haircut photo to that folder, then add its path, caption and alt text to the `photos` array in `gallery.js`. Use the exact filename and capitalisation. Commit and push the changes; GitHub Pages will publish them. Only add photos you have permission to publish.
 
-## Payment integration
-Checkout is wired to POST customer and cart details to the configured checkoutEndpoint. The secure backend must create the payment session and return { checkoutUrl }. Store gateway secrets only server-side and confirm payments through a verified webhook. The gateway is not connected yet.
+## Payments
+The payment gateway is not connected yet. A secure payment integration requires a server-side endpoint to create checkout sessions and verify payment notifications. Do not put private payment credentials in repository JavaScript or public files.
 
-Before launch, configure business hours, holidays, admin management, cancellations, expiry of unpaid reservations, customer notifications and privacy/legal pages.
-
-## Installable PWA
-The site includes a web app manifest, service worker, offline-cached app shell and an install button. Deploy over HTTPS (Cloudflare Pages provides HTTPS). Supported browsers show their native install prompt; on iPhone/iPad, use Safari Share → Add to Home Screen. Booking data, Supabase calls and payment still require an internet connection. The PWA must be served from the deployed site, not opened as a local file.
+## Deployment and PWA
+GitHub Actions deploys the site to GitHub Pages when changes are pushed to `main`. The site includes an installable PWA shell and service worker.
