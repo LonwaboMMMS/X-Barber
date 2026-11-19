@@ -1,31 +1,26 @@
 # X Barber Shop
 
-A mobile-friendly haircut booking website for two barbers. Customers choose a service, barber, date and available time, then enter their contact details.
+Separate home, booking, cart and checkout pages for a two-barber haircut booking system.
 
-## What's included
-- Service menu with editable prices and appointment durations.
-- Two barber profiles (placeholder names).
-- Date picker and time-slot selection.
-- Booking summary and customer details form.
-- Supabase database integration with server-side overlap checking to prevent double-booking.
-- Payment step intentionally left as a clearly labelled placeholder until the payment gateway is selected and credentials are supplied.
+## Appointment schedule
+- First appointment: 12:00 PM.
+- New appointment every 45 minutes: 12:00, 12:45, 1:30, 2:15, 3:00, 3:45, 4:30 PM.
+- Each booking reserves 45 minutes. Last slot ends at 5:15 PM.
+- Each barber has a separate availability calendar.
 
-## Preview mode
-Open `index.html` in a browser. Without Supabase credentials, the site runs in demo mode and uses browser storage. Demo bookings are only stored in that browser and are NOT shared between customers. Do not use demo mode for live appointments.
+## Pages
+- index.html — home
+- booking.html — service, barber, date and time selection
+- cart.html — review and remove bookings
+- checkout.html — customer details and payment handoff
 
-## Connect Supabase
-1. Create a Supabase project.
-2. In the Supabase SQL Editor, run `supabase/schema.sql`.
-3. Copy `config.js.example` to `config.js`.
-4. Add the project URL and anon/publishable key to `config.js`. Never use the service-role key in the website.
-5. Deploy the repository using GitHub Pages or another static host. Keep `config.js` private to your deployment and do not commit real credentials.
-6. Edit service names, prices, durations and barber names in the Supabase Table Editor.
+## Demo
+Without Supabase configuration, sample services/barbers are shown and the cart is stored in browser local storage. Demo bookings do not sync across customers and are not suitable for real bookings.
 
-The database booking function checks for overlapping appointments on the selected barber before creating a pending-payment booking. Payment confirmation, automatic expiry/refunds, admin management, barber working hours and customer notifications still need to be connected before production launch.
+## Supabase
+Create a project, run supabase/schema.sql in SQL Editor, then copy config.js.example to config.js and add the project URL and anon/publishable key. Never expose the service-role key. Edit service prices and barber names in Supabase.
 
-## Before going live
-- Choose the payment provider and implement its server-side checkout/webhook. Never trust a payment success message sent only by the browser.
-- Set opening hours, days off, holidays and booking lead-time rules.
-- Add an authenticated admin dashboard for managing services, barbers, schedules and bookings.
-- Configure email/SMS confirmations and privacy/legal pages.
-- Test concurrent bookings, cancellations and payment failures.
+## Payment integration
+Checkout is wired to POST customer and cart details to the configured checkoutEndpoint. The secure backend must create the payment session and return { checkoutUrl }. Store gateway secrets only server-side and confirm payments through a verified webhook. The gateway is not connected yet.
+
+Before launch, configure business hours, holidays, admin management, cancellations, expiry of unpaid reservations, customer notifications and privacy/legal pages.
