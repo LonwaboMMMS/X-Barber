@@ -1,8 +1,8 @@
 {
   "id": "./",
-  "name": "X Barber Shop",
-  "short_name": "X Barber",
-  "description": "Book your next haircut at X Barber Shop.",
+  "name": "X Barbershop",
+  "short_name": "X Barbershop",
+  "description": "Book your next haircut at X Barbershop.",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
