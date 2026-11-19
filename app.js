@@ -5,10 +5,8 @@
   const db = connected && window.supabase ? window.supabase.createClient(config.supabaseUrl, config.supabaseAnonKey) : null;
 
   const demoServices = [
-    {id:"cut",name:"Standard Haircut",description:"A clean, classic cut.",price_cents:15000,duration_minutes:30},
-    {id:"fade",name:"Skin Fade",description:"A detailed fade, finished sharp.",price_cents:20000,duration_minutes:45},
-    {id:"beard",name:"Haircut & Beard",description:"A fresh cut with beard shaping.",price_cents:25000,duration_minutes:60},
-    {id:"kids",name:"Kids Haircut",description:"A neat cut for the young ones.",price_cents:12000,duration_minutes:30}
+    {id:"fade",name:"Fade",description:"A clean, sharp fade.",price_cents:5000,duration_minutes:45},
+    {id:"fade-dye",name:"Fade with Dye",description:"A fresh fade finished with hair dye.",price_cents:7000,duration_minutes:45}
   ];
   const demoBarbers = [
     {id:"barber1",name:"Barber 1",bio:"Your barber. Your style."},
