@@ -33,7 +33,7 @@ export default {
     if (url.pathname === "/api/availability" && request.method === "GET") {
       const date = url.searchParams.get("date") || "";
       const barberId = url.searchParams.get("barber_id") || "";
-      if (!/^\\d{4}-\\d{2}-\\d{2}$/.test(date) || !["barber1", "barber2"].includes(barberId)) {
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || !["barber1", "barber2"].includes(barberId)) {
         return json({ error: "A valid date and barber_id are required." }, 400, origin);
       }
 
